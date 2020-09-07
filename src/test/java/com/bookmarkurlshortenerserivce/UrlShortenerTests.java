@@ -1,12 +1,18 @@
 package com.bookmarkurlshortenerserivce;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import com.bookmarkurlshortenerserivce.exception.BadRequestException;
 import com.bookmarkurlshortenerserivce.exception.NotFoundException;
 import com.bookmarkurlshortenerserivce.model.DigitalUrl;
 import com.bookmarkurlshortenerserivce.repository.UrlShortenerRepository;
+import com.bookmarkurlshortenerserivce.request.CreateShortUrlRequest;
 import com.bookmarkurlshortenerserivce.service.UrlShortenerService;
 import java.util.Date;
 import java.util.Optional;
-import org.assertj.core.api.Assertions;
+import org.apache.commons.lang3.time.DateUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,23 +39,45 @@ public class UrlShortenerTests {
   @Test
   @DisplayName("should get long url from the database")
   public void shouldGetLongUrlFromDatabase() {
-    DigitalUrl mockDigitalUrl = new DigitalUrl("kpys01", "https://www.google.com", new Date());
-    Mockito.when(urlShortenerRepository.findByShortUrl("sampleUrl"))
+    String mockUrl = "sampleUrl";
+    DigitalUrl mockDigitalUrl = new DigitalUrl("kpys01", "https://www.google.com", new Date(), null,
+        null);
+    Mockito.when(urlShortenerRepository.findByShortUrl(mockUrl))
         .thenReturn(Optional.of(mockDigitalUrl));
-    Assertions.assertThat(this.urlShortenerService.getLongUrl("sampleUrl"))
-        .isEqualTo(mockDigitalUrl);
+    assertThat(this.urlShortenerService.getLongUrl(mockUrl)).isEqualTo(mockDigitalUrl);
   }
 
   @Test
   @DisplayName("should not get long url from the database")
   public void shouldNotGetLongUrlFromDatabase() {
-    DigitalUrl mockDigitalUrl = new DigitalUrl("kpys01", "https://www.google.com", new Date());
+    DigitalUrl mockDigitalUrl = new DigitalUrl("kpys01", "https://www.google.com", new Date(), null,
+        null);
     urlShortenerRepository.save(mockDigitalUrl);
-    Throwable exception = org.junit.jupiter.api.Assertions
-        .assertThrows(NotFoundException.class, () -> {
-          urlShortenerService.getLongUrl("sampleUrl");
-        });
-    org.junit.jupiter.api.Assertions
-        .assertEquals("Please enter a valid url alias!", exception.getMessage());
+    Throwable exception = assertThrows(NotFoundException.class,
+        () -> urlShortenerService.getLongUrl("sampleUrl"));
+    assertEquals("Please enter a valid url alias!", exception.getMessage());
+  }
+
+  @Test
+  @DisplayName("should create short url and store it in the database")
+  public void shouldCreateShortUrlAndStoreItInTheDatabase() {
+    DigitalUrl mockDigitalUrl = new DigitalUrl("842d119b", "https://www.wikipedia.org/", new Date(),
+        null, null);
+    CreateShortUrlRequest createShortUrlRequest = new CreateShortUrlRequest(
+        "https://www.wikipedia.org/", DateUtils.addDays(new Date(), 1), null, null);
+    Mockito.when(urlShortenerRepository.save(mockDigitalUrl))
+        .thenReturn(mockDigitalUrl);
+    DigitalUrl digitalUrlResponse = urlShortenerService.createLongUrl(createShortUrlRequest);
+    assertEquals(digitalUrlResponse.getLongUrl(), mockDigitalUrl.getLongUrl());
+  }
+
+  @Test
+  @DisplayName("should not create short url for invalid url")
+  public void shouldNotCreateShortUrlForInvalidUrl() {
+    CreateShortUrlRequest createShortUrlRequest = new CreateShortUrlRequest(
+        "www.dummy22.org/", DateUtils.addDays(new Date(), 1), null, null);
+    Throwable exception = assertThrows(BadRequestException.class,
+        () -> urlShortenerService.createLongUrl(createShortUrlRequest));
+    assertEquals("URL Invalid: www.dummy22.org/", exception.getMessage());
   }
 }

@@ -6,11 +6,13 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
+@Builder(toBuilder = true)
 @Getter
 @Setter
 @AllArgsConstructor
@@ -25,6 +27,12 @@ public class DigitalUrl {
   @Column(name = "LONG_URL", nullable = false)
   private String longUrl;
 
-  @Column(name = "EXPIRY_DATE", nullable = true)
+  @Column(name = "EXPIRY_DATE")
   private Date expiryDate;
+
+  @Column(name = "DESCRIPTION")
+  private String description;
+
+  @Column(name = "CATEGORY")
+  private String category;
 }

@@ -64,6 +64,16 @@
       <artifactId>commons-collections</artifactId>
       <version>3.2.2</version>
     </dependency>
+		<dependency>
+			<groupId>commons-validator</groupId>
+			<artifactId>commons-validator</artifactId>
+			<version>1.6</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>18.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>
