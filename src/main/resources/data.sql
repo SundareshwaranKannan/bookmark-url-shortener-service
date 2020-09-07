@@ -1,0 +1,1 @@
+INSERT INTO DIGITAL_URL (SHORT_URL,LONG_URL,EXPIRY_DATE) VALUES ('kpys01','https://www.google.com','2020-10-20');
