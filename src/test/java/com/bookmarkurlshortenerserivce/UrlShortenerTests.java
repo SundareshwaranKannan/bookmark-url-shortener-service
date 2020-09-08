@@ -5,14 +5,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.bookmarkurlshortenerserivce.exception.BadRequestException;
+import com.bookmarkurlshortenerserivce.exception.ExpiredUrlException;
 import com.bookmarkurlshortenerserivce.exception.NotFoundException;
 import com.bookmarkurlshortenerserivce.model.DigitalUrl;
 import com.bookmarkurlshortenerserivce.repository.UrlShortenerRepository;
 import com.bookmarkurlshortenerserivce.request.CreateShortUrlRequest;
 import com.bookmarkurlshortenerserivce.service.UrlShortenerService;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.Optional;
-import org.apache.commons.lang3.time.DateUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,7 +40,8 @@ public class UrlShortenerTests {
   @DisplayName("should get long url from the database")
   public void shouldGetLongUrlFromDatabase() {
     String mockUrl = "sampleUrl";
-    DigitalUrl mockDigitalUrl = new DigitalUrl("kpys01", "https://www.google.com", new Date(), null,
+    DigitalUrl mockDigitalUrl = new DigitalUrl("kpys01", "https://www.google.com", LocalDate.now(),
+        null,
         null);
     Mockito.when(urlShortenerRepository.findByShortUrl(mockUrl))
         .thenReturn(Optional.of(mockDigitalUrl));
@@ -48,9 +49,10 @@ public class UrlShortenerTests {
   }
 
   @Test
-  @DisplayName("should not get long url from the database")
-  public void shouldNotGetLongUrlFromDatabase() {
-    DigitalUrl mockDigitalUrl = new DigitalUrl("kpys01", "https://www.google.com", new Date(), null,
+  @DisplayName("should not get long url from the database when the short url is not present")
+  public void shouldNotGetLongUrlFromDatabaseWhenTheShortUrlIsNotPresent() {
+    DigitalUrl mockDigitalUrl = new DigitalUrl("kpys01", "https://www.google.com", LocalDate.now(),
+        null,
         null);
     urlShortenerRepository.save(mockDigitalUrl);
     Throwable exception = assertThrows(NotFoundException.class,
@@ -59,12 +61,25 @@ public class UrlShortenerTests {
   }
 
   @Test
+  @DisplayName("should throw expired url exception")
+  public void shouldThrowExpiredUrlException() {
+    DigitalUrl mockDigitalUrl = new DigitalUrl("kpys01", "https://www.google.com",
+        LocalDate.now().minusDays(2), null,
+        null);
+    urlShortenerRepository.save(mockDigitalUrl);
+    Throwable exception = assertThrows(ExpiredUrlException.class,
+        () -> urlShortenerService.getLongUrl("kpys01"));
+    assertEquals("The requested short url has expired!", exception.getMessage());
+  }
+
+  @Test
   @DisplayName("should create short url and store it in the database")
   public void shouldCreateShortUrlAndStoreItInTheDatabase() {
-    DigitalUrl mockDigitalUrl = new DigitalUrl("842d119b", "https://www.wikipedia.org/", new Date(),
+    DigitalUrl mockDigitalUrl = new DigitalUrl("842d119b", "https://www.wikipedia.org/",
+        LocalDate.now(),
         null, null);
     CreateShortUrlRequest createShortUrlRequest = new CreateShortUrlRequest(
-        "https://www.wikipedia.org/", DateUtils.addDays(new Date(), 1), null, null);
+        "https://www.wikipedia.org/", LocalDate.now().plusDays(1), null, null);
     Mockito.when(urlShortenerRepository.save(mockDigitalUrl))
         .thenReturn(mockDigitalUrl);
     DigitalUrl digitalUrlResponse = urlShortenerService.createLongUrl(createShortUrlRequest);
@@ -75,7 +90,7 @@ public class UrlShortenerTests {
   @DisplayName("should not create short url for invalid url")
   public void shouldNotCreateShortUrlForInvalidUrl() {
     CreateShortUrlRequest createShortUrlRequest = new CreateShortUrlRequest(
-        "www.dummy22.org/", DateUtils.addDays(new Date(), 1), null, null);
+        "www.dummy22.org/", LocalDate.now().plusDays(1), null, null);
     Throwable exception = assertThrows(BadRequestException.class,
         () -> urlShortenerService.createLongUrl(createShortUrlRequest));
     assertEquals("URL Invalid: www.dummy22.org/", exception.getMessage());

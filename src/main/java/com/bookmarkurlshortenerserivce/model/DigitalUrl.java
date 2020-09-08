@@ -1,6 +1,6 @@
 package com.bookmarkurlshortenerserivce.model;
 
-import java.util.Date;
+import java.time.LocalDate;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -28,7 +28,7 @@ public class DigitalUrl {
   private String longUrl;
 
   @Column(name = "EXPIRY_DATE")
-  private Date expiryDate;
+  private LocalDate expiryDate;
 
   @Column(name = "DESCRIPTION")
   private String description;

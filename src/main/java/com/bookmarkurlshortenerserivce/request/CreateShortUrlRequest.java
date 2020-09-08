@@ -1,6 +1,7 @@
 package com.bookmarkurlshortenerserivce.request;
 
-import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +14,8 @@ import lombok.Setter;
 public class CreateShortUrlRequest {
 
   private String longUrl;
-  private Date expiryDate;
+  @JsonFormat(pattern = "yyyy-MM-dd")
+  private LocalDate expiryDate;
   private String description;
   private String category;
 }
