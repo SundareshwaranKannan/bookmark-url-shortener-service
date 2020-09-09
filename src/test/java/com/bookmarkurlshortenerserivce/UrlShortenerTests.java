@@ -63,12 +63,13 @@ public class UrlShortenerTests {
   @Test
   @DisplayName("should throw expired url exception")
   public void shouldThrowExpiredUrlException() {
-    DigitalUrl mockDigitalUrl = new DigitalUrl("kpys01", "https://www.google.com",
-        LocalDate.now().minusDays(2), null,
-        null);
-    urlShortenerRepository.save(mockDigitalUrl);
+    String mockUrl = "sampleUrl";
+    DigitalUrl mockDigitalUrl = new DigitalUrl("842d119b", "https://www.wikipedia.org/",
+        LocalDate.now().minusDays(2), null, null);
+    Mockito.when(urlShortenerRepository.findByShortUrl(mockUrl))
+        .thenReturn(Optional.of(mockDigitalUrl));
     Throwable exception = assertThrows(ExpiredUrlException.class,
-        () -> urlShortenerService.getLongUrl("kpys01"));
+        () -> urlShortenerService.getLongUrl(mockUrl));
     assertEquals("The requested short url has expired!", exception.getMessage());
   }
 
