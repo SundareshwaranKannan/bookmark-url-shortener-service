@@ -41,8 +41,7 @@ public class UrlShortenerTests {
   public void shouldGetLongUrlFromDatabase() {
     String mockUrl = "sampleUrl";
     DigitalUrl mockDigitalUrl = new DigitalUrl("kpys01", "https://www.google.com", LocalDate.now(),
-        null,
-        null);
+        null, null, null, null, null, null);
     Mockito.when(urlShortenerRepository.findByShortUrl(mockUrl))
         .thenReturn(Optional.of(mockDigitalUrl));
     assertThat(this.urlShortenerService.getLongUrl(mockUrl)).isEqualTo(mockDigitalUrl);
@@ -52,8 +51,7 @@ public class UrlShortenerTests {
   @DisplayName("should not get long url from the database when the short url is not present")
   public void shouldNotGetLongUrlFromDatabaseWhenTheShortUrlIsNotPresent() {
     DigitalUrl mockDigitalUrl = new DigitalUrl("kpys01", "https://www.google.com", LocalDate.now(),
-        null,
-        null);
+        null, null, null, null, null, null);
     urlShortenerRepository.save(mockDigitalUrl);
     Throwable exception = assertThrows(NotFoundException.class,
         () -> urlShortenerService.getLongUrl("sampleUrl"));
@@ -65,7 +63,7 @@ public class UrlShortenerTests {
   public void shouldThrowExpiredUrlException() {
     String mockUrl = "sampleUrl";
     DigitalUrl mockDigitalUrl = new DigitalUrl("842d119b", "https://www.wikipedia.org/",
-        LocalDate.now().minusDays(2), null, null);
+        LocalDate.now().minusDays(2), null, null, null, null, null, null);
     Mockito.when(urlShortenerRepository.findByShortUrl(mockUrl))
         .thenReturn(Optional.of(mockDigitalUrl));
     Throwable exception = assertThrows(ExpiredUrlException.class,
@@ -77,10 +75,10 @@ public class UrlShortenerTests {
   @DisplayName("should create short url and store it in the database")
   public void shouldCreateShortUrlAndStoreItInTheDatabase() {
     DigitalUrl mockDigitalUrl = new DigitalUrl("842d119b", "https://www.wikipedia.org/",
-        LocalDate.now(),
-        null, null);
+        LocalDate.now(), null, null, null, null, null, null);
     CreateShortUrlRequest createShortUrlRequest = new CreateShortUrlRequest(
-        "https://www.wikipedia.org/", LocalDate.now().plusDays(1), null, null);
+        "https://www.wikipedia.org/", LocalDate.now().plusDays(1),
+        null, null, null, null, null, null);
     Mockito.when(urlShortenerRepository.save(mockDigitalUrl))
         .thenReturn(mockDigitalUrl);
     DigitalUrl digitalUrlResponse = urlShortenerService.createLongUrl(createShortUrlRequest);
@@ -91,7 +89,8 @@ public class UrlShortenerTests {
   @DisplayName("should not create short url for invalid url")
   public void shouldNotCreateShortUrlForInvalidUrl() {
     CreateShortUrlRequest createShortUrlRequest = new CreateShortUrlRequest(
-        "www.dummy22.org/", LocalDate.now().plusDays(1), null, null);
+        "www.dummy22.org/", LocalDate.now().plusDays(1), null, null,
+        null, null, null, null);
     Throwable exception = assertThrows(BadRequestException.class,
         () -> urlShortenerService.createLongUrl(createShortUrlRequest));
     assertEquals("URL Invalid: www.dummy22.org/", exception.getMessage());

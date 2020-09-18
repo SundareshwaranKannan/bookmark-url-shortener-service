@@ -38,7 +38,9 @@ public class UrlShortenerService {
               StandardCharsets.UTF_8).toString();
       DigitalUrl digitalUrl = new DigitalUrl(shortUrlCode, createShortUrlRequest.getLongUrl(),
           createShortUrlRequest.getExpiryDate(), createShortUrlRequest.getDescription(),
-          createShortUrlRequest.getCategory());
+          createShortUrlRequest.getCategory(), createShortUrlRequest.getTribe(),
+          createShortUrlRequest.getApplication(), createShortUrlRequest.getUserMail(),
+          createShortUrlRequest.getBookmarkTitle());
       urlShortenerRepository.save(digitalUrl);
       return digitalUrl;
     }

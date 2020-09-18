@@ -35,4 +35,16 @@ public class DigitalUrl {
 
   @Column(name = "CATEGORY")
   private String category;
+
+  @Column(name = "TRIBE")
+  private String tribe;
+
+  @Column(name = "APPLICATION")
+  private String application;
+
+  @Column(name = "USER_MAIL")
+  private String userMail;
+
+  @Column(name = "BOOKMARK_TITLE")
+  private String bookmarkTitle;
 }

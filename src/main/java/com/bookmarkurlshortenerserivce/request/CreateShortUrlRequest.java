@@ -18,4 +18,8 @@ public class CreateShortUrlRequest {
   private LocalDate expiryDate;
   private String description;
   private String category;
+  private String userMail;
+  private String tribe;
+  private String application;
+  private String bookmarkTitle;
 }
